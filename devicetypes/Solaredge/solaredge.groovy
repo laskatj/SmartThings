@@ -30,6 +30,8 @@ metadata {
 	capability "Power Meter"
     capability "Energy Meter"
     capability "Refresh"
+    capability "Illuminance Measurement"
+    
 	//capability "Polling"
         
     attribute "energy_today", "string"
@@ -47,6 +49,13 @@ metadata {
 	}
 
 	tiles {
+            valueTile("illuminance", "device.illuminance") {
+   	         state("illuminance", label: '${currentValue}\nIlluminance', unit:"lux", backgroundColors: [
+                    [value: 2, color: "#32CD32"],
+                    [value: 1, color: "#000000"],
+    	            ]
+                )
+        	}
             valueTile("solar", "device.power") {
    	         state("solarPower", label: '${currentValue}\nSolar', unit:"W", backgroundColors: [
                     [value: 2, color: "#32CD32"],
@@ -96,7 +105,7 @@ metadata {
         
         main (["solar"])
         details(["solar", 
-//        "productionLevel", 															// TODO coding for production level %
+        "illuminance", 															// TODO coding for production level %
         "energy_today", "energy_month", "energy_year", "energy_lifetime","refresh"])
 
 	}
@@ -145,6 +154,14 @@ def energyRefresh() {
             currentsolarPower = resp.data.overview.currentPower.power
             log.debug "currentsolarPower :${currentsolarPower}"
             
+            
+            def currentIlluminance = 0
+            
+            //currentIlluminance = String.format("%d",resp.data.overview.currentPower.power)
+            currentIlluminance = resp.data.overview.currentPower.power.intValue()
+            log.debug "currentIlluminance :${currentIlluminance}"
+            
+            
             def energyToday = resp.data.overview.lastDayData.energy/1000
             log.debug "energyToday :${energyToday}"            
       
@@ -162,6 +179,7 @@ def energyRefresh() {
 			
             delayBetween(
                	[sendEvent(name: 'power', value: (currentsolarPower))
+                ,sendEvent(name: 'illuminance', value: (currentIlluminance), unit: "lux")
                 ,sendEvent(name: 'energy_today', value: (String.format("%5.2f", energyToday)))
                 ,sendEvent(name: 'energy_month', value: (String.format("%5.2f", energyMonth)))
                 ,sendEvent(name: 'energy_year', value: (String.format("%5.2f", energyYear)))
