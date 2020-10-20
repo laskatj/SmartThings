@@ -26,7 +26,7 @@ preferences {
 }
 
 metadata {
-	definition (name: "Solaredge System", namespace: "laskatj", author: "David Tucker") {
+	definition (name: "Solaredge", namespace: "solaredge", author: "David Tucker") {
 	capability "Power Meter"
     capability "Energy Meter"
     capability "Refresh"
